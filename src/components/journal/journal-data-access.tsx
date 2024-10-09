@@ -2,7 +2,7 @@
 
 import { getJournalProgram, getJournalProgramId } from "@project/anchor";
 import { useConnection } from "@solana/wallet-adapter-react";
-import { Cluster, Keypair, PublicKey } from "@solana/web3.js";
+import { Cluster, Keypair, PublicKey, SystemProgram } from "@solana/web3.js";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 import toast from "react-hot-toast";
@@ -48,7 +48,9 @@ export function useJournalProgram() {
       return program.methods
         .createJournalEntry(title, message)
         .accounts({
-          journalEntry: journalEntryAddress,
+          owner,
+          // payer: owner,
+          // systemProgram: SystemProgram.programId,
         })
         .rpc();
     },
@@ -90,7 +92,8 @@ export function useJournalProgramAccount({ account }: { account: PublicKey }) {
       return program.methods
         .updateJournalEntry(title, message)
         .accounts({
-          journalEntry: journalEntryAddress,
+          // journalEntry: journalEntryAddress,
+          owner,
         })
         .rpc();
     },
@@ -108,7 +111,9 @@ export function useJournalProgramAccount({ account }: { account: PublicKey }) {
     mutationFn: (title: string) =>
       program.methods
         .deleteJournalEntry(title)
-        .accounts({ journalEntry: account })
+        .accounts({
+          owner: Keypair.generate().publicKey,
+        })
         .rpc(),
     onSuccess: (tx) => {
       transactionToast(tx);
