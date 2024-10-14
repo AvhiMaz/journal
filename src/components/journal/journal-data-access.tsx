@@ -1,3 +1,5 @@
+//@ts-nocheck
+
 "use client";
 
 import { getJournalProgram, getJournalProgramId } from "@project/anchor";
@@ -48,9 +50,10 @@ export function useJournalProgram() {
       return program.methods
         .createJournalEntry(title, message)
         .accounts({
-          owner,
+          // owner,
+          journalEntry: journalEntryAddress,
           // payer: owner,
-          // systemProgram: SystemProgram.programId,
+          systemProgram: SystemProgram.programId,
         })
         .rpc();
     },
@@ -92,8 +95,8 @@ export function useJournalProgramAccount({ account }: { account: PublicKey }) {
       return program.methods
         .updateJournalEntry(title, message)
         .accounts({
-          // journalEntry: journalEntryAddress,
-          owner,
+          journalEntry: journalEntryAddress,
+          // owner,
         })
         .rpc();
     },
@@ -112,7 +115,7 @@ export function useJournalProgramAccount({ account }: { account: PublicKey }) {
       program.methods
         .deleteJournalEntry(title)
         .accounts({
-          owner: Keypair.generate().publicKey,
+          journalEntry: account,
         })
         .rpc(),
     onSuccess: (tx) => {
